@@ -135,10 +135,7 @@ all.config
 !drivers/misc/mediatek/fpsgo_cus/src/*.o
 *.orig
 out/*
-KernelSU-Next/
-drivers/kernelsu
 MoonWake-Private-*
 ksu.sh
-KernelSU/
 drivers/gpu/drm/nouveau/
 include/soc/arc/
