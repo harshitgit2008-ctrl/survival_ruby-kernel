@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Build Kernel for MT6877
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - name: Checkout Source Code
       uses: actions/checkout@v4
@@ -16,7 +16,7 @@ jobs:
     - name: Setup Build Environment
       run: |
         sudo apt-get update
-        sudo apt-get install -y git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler python2 python3
+        sudo apt-get install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf libxml2 libxml2-utils lzop make optipng pngcrush rsync schedtool squashfs-tools tar unzip libssl-dev libncurses-dev zlib1g-dev libtinfo6 lib32z1-dev device-tree-compiler python3 python3-pip
 
     - name: Download Clang Toolchain (Proton Clang)
       run: |
