@@ -37,6 +37,12 @@ jobs:
         wget https://raw.githubusercontent.com/torvalds/linux/v4.19/net/netfilter/xt_TCPMSS.c -O net/netfilter/xt_TCPMSS.c || true
         wget https://raw.githubusercontent.com/torvalds/linux/v4.19/net/netfilter/xt_DSCP.c -O net/netfilter/xt_DSCP.c || true
         wget https://raw.githubusercontent.com/torvalds/linux/v4.19/net/netfilter/xt_RATEEST.c -O net/netfilter/xt_RATEEST.c || true
+        
+        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/include/uapi/linux/netfilter_ipv4/ipt_TTL.h -O include/uapi/linux/netfilter_ipv4/ipt_TTL.h || true
+        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/include/uapi/linux/netfilter_ipv6/ip6t_HL.h -O include/uapi/linux/netfilter_ipv6/ip6t_HL.h || true
+        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/include/uapi/linux/netfilter/xt_TCPMSS.h -O include/uapi/linux/netfilter/xt_TCPMSS.h || true
+        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/include/uapi/linux/netfilter/xt_DSCP.h -O include/uapi/linux/netfilter/xt_DSCP.h || true
+        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/include/uapi/linux/netfilter/xt_RATEEST.h -O include/uapi/linux/netfilter/xt_RATEEST.h || true
                 
         make O=out ARCH=arm64 CC=clang ruby_defconfig
         make -j$(nproc --all) O=out ARCH=arm64 CC=clang CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
