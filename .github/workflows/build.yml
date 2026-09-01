@@ -37,8 +37,14 @@ jobs:
     - name: Package Kernel (AnyKernel3)
       run: |
         git clone https://github.com/osm0sis/AnyKernel3.git AnyKernel3
-        cp out/arch/arm64/boot/Image.gz AnyKernel3/
-        cp out/arch/arm64/boot/dts/mediatek/mt6877.dtb AnyKernel3/dtb || true
+        if [ -f out/arch/arm64/boot/Image.gz-dtb ]; then
+          cp out/arch/arm64/boot/Image.gz-dtb AnyKernel3/Image.gz-dtb
+        elif [ -f out/arch/arm64/boot/Image.gz ]; then
+          cp out/arch/arm64/boot/Image.gz AnyKernel3/Image.gz
+        elif [ -f out/arch/arm64/boot/Image ]; then
+          cp out/arch/arm64/boot/Image AnyKernel3/Image
+        fi
+        find out/arch/arm64/boot/dts -name "*.dtb" -exec cp {} AnyKernel3/dtb \; 2>/dev/null || true
         cd AnyKernel3
         sed -i 's/do.devicecheck=1/do.devicecheck=0/g' anykernel.sh
         sed -i 's/block=\/dev\/block\/bootdevice\/by-name\/boot/block=auto/g' anykernel.sh
