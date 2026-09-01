@@ -33,18 +33,11 @@ jobs:
         export CROSS_COMPILE_ARM32=arm-linux-gnueabi-
         export CC=clang
         
-        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/net/netfilter/xt_HL.c -O net/netfilter/xt_HL.c
-        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/net/netfilter/xt_TCPMSS.c -O net/netfilter/xt_TCPMSS.c
-        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/net/netfilter/xt_DSCP.c -O net/netfilter/xt_DSCP.c
-        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/net/netfilter/xt_MARK.c -O net/netfilter/xt_MARK.c
-        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/net/netfilter/xt_RATEEST.c -O net/netfilter/xt_RATEEST.c
-        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/net/netfilter/xt_CONNMARK.c -O net/netfilter/xt_CONNMARK.c
-        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/include/uapi/linux/netfilter/xt_CONNMARK.h -O include/uapi/linux/netfilter/xt_CONNMARK.h
-        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/include/uapi/linux/netfilter/xt_DSCP.h -O include/uapi/linux/netfilter/xt_DSCP.h
-        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/include/uapi/linux/netfilter/xt_MARK.h -O include/uapi/linux/netfilter/xt_MARK.h
-        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/include/uapi/linux/netfilter/xt_RATEEST.h -O include/uapi/linux/netfilter/xt_RATEEST.h
-        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/include/uapi/linux/netfilter/xt_TCPMSS.h -O include/uapi/linux/netfilter/xt_TCPMSS.h
-        
+        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/net/netfilter/xt_HL.c -O net/netfilter/xt_HL.c || true
+        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/net/netfilter/xt_TCPMSS.c -O net/netfilter/xt_TCPMSS.c || true
+        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/net/netfilter/xt_DSCP.c -O net/netfilter/xt_DSCP.c || true
+        wget https://raw.githubusercontent.com/torvalds/linux/v4.19/net/netfilter/xt_RATEEST.c -O net/netfilter/xt_RATEEST.c || true
+                
         make O=out ARCH=arm64 CC=clang ruby_defconfig
         make -j$(nproc --all) O=out ARCH=arm64 CC=clang CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
         
