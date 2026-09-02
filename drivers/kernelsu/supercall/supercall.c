@@ -8,6 +8,10 @@
 #include <linux/slab.h>
 #include <linux/syscalls.h>
 #include <linux/task_work.h>
+
+#ifndef TWA_RESUME
+#define TWA_RESUME true
+#endif
 #include <linux/uaccess.h>
 #include <linux/version.h>
 
