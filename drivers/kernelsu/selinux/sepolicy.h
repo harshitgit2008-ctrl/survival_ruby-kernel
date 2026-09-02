@@ -4,6 +4,24 @@
 #include <linux/types.h>
 
 #include "ss/policydb.h"
+#include <linux/version.h>
+#include "security.h"
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 5, 0)
+#define selinux_policy selinux_ss
+#define KSU_POLICY_LOCK() write_lock_irq(&selinux_state.ss->policy_rwlock)
+#define KSU_POLICY_UNLOCK() write_unlock_irq(&selinux_state.ss->policy_rwlock)
+#define KSU_POLICY_IS_HELD() lockdep_is_held(&selinux_state.ss->policy_rwlock)
+#define ksu_get_policy() (selinux_state.ss)
+#define ksu_set_policy(pol) rcu_assign_pointer(selinux_state.ss, pol)
+#else
+#define KSU_POLICY_LOCK() mutex_lock(&selinux_state.policy_mutex)
+#define KSU_POLICY_UNLOCK() mutex_unlock(&selinux_state.policy_mutex)
+#define KSU_POLICY_IS_HELD() lockdep_is_held(&selinux_state.policy_mutex)
+#define ksu_get_policy() (selinux_state.policy)
+#define ksu_set_policy(pol) rcu_assign_pointer(selinux_state.policy, pol)
+#endif
+
 
 struct selinux_policy *ksu_dup_sepolicy(struct selinux_policy *old_pol);
 

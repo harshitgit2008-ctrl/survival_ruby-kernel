@@ -44,16 +44,16 @@ static void reset_avc_cache()
 
 void apply_kernelsu_rules()
 {
-    struct selinux_policy *pol, *old_pol = selinux_state.policy;
+    struct selinux_policy *pol, *old_pol = ksu_get_policy();
     struct policydb *db;
 
     if (!getenforce()) {
         pr_info("SELinux permissive or disabled, apply rules!\n");
     }
 
-    mutex_lock(&selinux_state.policy_mutex);
+    KSU_POLICY_LOCK();
     backup_sepolicy =
-        ksu_dup_sepolicy(rcu_dereference_protected(old_pol, lockdep_is_held(&selinux_state.policy_mutex)));
+        ksu_dup_sepolicy(rcu_dereference_protected(old_pol, KSU_POLICY_IS_HELD()));
     if (IS_ERR(backup_sepolicy)) {
         pr_err("failed to create backup sepolicy: %ld\n", PTR_ERR(backup_sepolicy));
         backup_sepolicy = NULL;
@@ -75,7 +75,7 @@ void apply_kernelsu_rules()
             }
         }
     }
-    pol = ksu_dup_sepolicy(rcu_dereference_protected(old_pol, lockdep_is_held(&selinux_state.policy_mutex)));
+    pol = ksu_dup_sepolicy(rcu_dereference_protected(old_pol, KSU_POLICY_IS_HELD()));
     if (IS_ERR(pol)) {
         pr_err("failed to dup selinux_policy: %ld\n", PTR_ERR(pol));
         goto out_unlock;
@@ -155,13 +155,13 @@ void apply_kernelsu_rules()
     ksu_allow(db, "system_server", KERNEL_SU_DOMAIN, "process", "getpgid");
     ksu_allow(db, "system_server", KERNEL_SU_DOMAIN, "process", "sigkill");
 
-    rcu_assign_pointer(selinux_state.policy, pol);
+    ksu_set_policy(pol);
     synchronize_rcu();
     ksu_destroy_sepolicy(old_pol);
 
     reset_avc_cache();
 out_unlock:
-    mutex_unlock(&selinux_state.policy_mutex);
+    KSU_POLICY_UNLOCK();
 }
 
 #define KSU_SEPOLICY_MAX_BATCH_SIZE (8U * 1024U * 1024U)
@@ -461,10 +461,10 @@ int handle_sepolicy(void __user *user_data, u64 data_len)
         pr_info("SELinux permissive or disabled when handle policy!\n");
     }
 
-    mutex_lock(&selinux_state.policy_mutex);
+    KSU_POLICY_LOCK();
 
-    old_pol = selinux_state.policy;
-    pol = ksu_dup_sepolicy(rcu_dereference_protected(old_pol, lockdep_is_held(&selinux_state.policy_mutex)));
+    old_pol = ksu_get_policy();
+    pol = ksu_dup_sepolicy(rcu_dereference_protected(old_pol, KSU_POLICY_IS_HELD()));
     if (IS_ERR(pol)) {
         ret = PTR_ERR(pol);
         pr_err("ksu_dup_sepolicy err: %d\n", ret);
@@ -514,7 +514,7 @@ int handle_sepolicy(void __user *user_data, u64 data_len)
         cmd_index++;
     }
 
-    rcu_assign_pointer(selinux_state.policy, pol);
+    ksu_set_policy(pol);
     synchronize_rcu();
     ksu_destroy_sepolicy(old_pol);
 
@@ -525,7 +525,7 @@ int handle_sepolicy(void __user *user_data, u64 data_len)
 out_drop_new_policy:
     ksu_destroy_sepolicy(pol);
 out_unlock:
-    mutex_unlock(&selinux_state.policy_mutex);
+    KSU_POLICY_UNLOCK();
 out_free:
     kvfree(payload);
 
