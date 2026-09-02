@@ -19,6 +19,15 @@
 #include <ss/context.h>
 #include <ss/services.h>
 #include <ss/mls.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 5, 0)
+#define ksu_status_lock (selinux_state.ss->status_lock)
+#define ksu_status_page (selinux_state.ss->status_page)
+#define ksu_fake_state_policy fake_state.ss
+#else
+#define ksu_status_lock (selinux_state.status_lock)
+#define ksu_status_page (selinux_state.status_page)
+#define ksu_fake_state_policy fake_state.policy
+#endif
 #include <ss/conditional.h>
 #include "avc.h"
 #include "klog.h" // IWYU pragma: keep
@@ -249,15 +258,15 @@ static struct page *fake_status = NULL;
 
 static void initialize_fake_status()
 {
-    mutex_lock(&selinux_state.status_lock);
+    mutex_lock(&ksu_status_lock);
     if (fake_status)
         goto out;
-    if (!selinux_state.status_page) {
+    if (!ksu_status_page) {
         pr_warn("initialize_fake_status: status_page not exist\n");
         goto out;
     }
 
-    struct selinux_kernel_status *status = page_address(selinux_state.status_page);
+    struct selinux_kernel_status *status = page_address(ksu_status_page);
     if (!status->enforcing && !ksu_late_loaded) {
         pr_warn("initialize_fake_status: skip not enforcing\n");
         goto out;
@@ -293,7 +302,7 @@ static void initialize_fake_status()
             new_status->policyload, new_status->enforcing);
 
 out:
-    mutex_unlock(&selinux_state.status_lock);
+    mutex_unlock(&ksu_status_lock);
 }
 
 typedef int (*sel_open_handle_status_fn)(struct inode *inode, struct file *filp);
@@ -302,9 +311,9 @@ static int my_sel_open_handle_status(struct inode *inode, struct file *filp)
 {
     if (likely(current_uid().val >= 10000 && ksu_selinux_hide_enabled)) {
         void *data;
-        mutex_lock(&selinux_state.status_lock);
+        mutex_lock(&ksu_status_lock);
         data = fake_status;
-        mutex_unlock(&selinux_state.status_lock);
+        mutex_unlock(&ksu_status_lock);
         if (data) {
             filp->private_data = data;
             return 0;
@@ -346,7 +355,7 @@ static int ksu_selinux_hide_enable()
     }
 #else
     fake_state.initialized = true;
-    fake_state.policy = backup_sepolicy;
+    ksu_fake_state_policy = backup_sepolicy;
 #endif
 
     context_write = &selinux_write_op[SEL_CONTEXT];
@@ -448,7 +457,7 @@ static int selinux_hide_feature_set(u64 value)
 }
 
 static const struct ksu_feature_handler selinux_hide_handler = {
-    .feature_id = KSU_FEATURE_SELINUX_HIDE,
+    .feature_id = KSU_FEATURE_SELINUX_HIDE_STATUS,
     .name = "selinux_hide",
     .get_handler = selinux_hide_feature_get,
     .set_handler = selinux_hide_feature_set,
@@ -516,12 +525,12 @@ void __exit ksu_selinux_hide_exit()
         ksu_selinux_hide_running = false;
     }
     mutex_unlock(&selinux_hide_mutex);
-    ksu_unregister_feature_handler(KSU_FEATURE_SELINUX_HIDE);
-    mutex_lock(&selinux_state.status_lock);
+    ksu_unregister_feature_handler(KSU_FEATURE_SELINUX_HIDE_STATUS);
+    mutex_lock(&ksu_status_lock);
     if (fake_status)
         __free_page(fake_status);
     fake_status = NULL;
-    mutex_unlock(&selinux_state.status_lock);
+    mutex_unlock(&ksu_status_lock);
 }
 
 void ksu_selinux_hide_drop_backup_if_unused()
