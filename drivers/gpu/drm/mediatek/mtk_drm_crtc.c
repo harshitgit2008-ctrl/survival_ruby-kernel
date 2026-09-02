@@ -1044,7 +1044,7 @@ int mtk_drm_aod_setbacklight(struct drm_crtc *crtc, unsigned int level)
 	DDP_MUTEX_LOCK(&mtk_crtc->lock, __func__, __LINE__);
 
 	crtc_state = to_mtk_crtc_state(crtc->state);
-	if (mtk_crtc->enabled && !crtc_state->prop_val[CRTC_PROP_DOZE_ACTIVE]) {
+	if (0 /* mtk_crtc->enabled && !crtc_state->prop_val[CRTC_PROP_DOZE_ACTIVE] */) {
 		DDPINFO("%s:%d, crtc is on and not in doze mode\n",
 			__func__, __LINE__);
 		DDP_MUTEX_UNLOCK(&mtk_crtc->lock, __func__, __LINE__);
