@@ -15,6 +15,12 @@
 #include <linux/printk.h>
 #include <linux/types.h>
 #include <linux/uaccess.h>
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
+#define strncpy_from_user_nofault strncpy_from_user
+#define copy_from_user_nofault copy_from_user
+#define copy_to_user_nofault copy_to_user
+#endif
 #include <linux/namei.h>
 #include <linux/workqueue.h>
 #include <linux/uio.h>

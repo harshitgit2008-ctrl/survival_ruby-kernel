@@ -14,6 +14,10 @@
 #include <linux/mm.h>
 #endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
+#define strncpy_from_user_nofault strncpy_from_user
+#endif
+
 #include "feature/sulog.h"
 #include "infra/event_queue.h"
 #include "klog.h" // IWYU pragma: keep

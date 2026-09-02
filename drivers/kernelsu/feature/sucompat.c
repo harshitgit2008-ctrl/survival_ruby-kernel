@@ -18,6 +18,10 @@
 #include "arch.h"
 #include "policy/allowlist.h"
 #include "policy/feature.h"
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
+#define strncpy_from_user_nofault strncpy_from_user
+#endif
 #include "klog.h" // IWYU pragma: keep
 #include "runtime/ksud.h"
 #include "feature/sucompat.h"
