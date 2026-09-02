@@ -2,7 +2,7 @@ name: Build Survival Kernel
 
 on:
   push:
-    branches: [ "master", "main" ]
+    branches: [ "master", "main", "vanilla-base" ]
   workflow_dispatch:
 
 jobs:
