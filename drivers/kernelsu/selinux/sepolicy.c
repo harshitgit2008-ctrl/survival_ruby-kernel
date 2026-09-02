@@ -19,6 +19,7 @@
 //////////////////////////////////////////////////////
 // Declaration
 //////////////////////////////////////////////////////
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
 
 static struct avtab_node *get_avtab_node(struct policydb *db, struct avtab_key *key,
                                          struct avtab_extended_perms *xperms);
@@ -896,6 +897,27 @@ bool ksu_genfscon(struct policydb *db, const char *fs_name, const char *path, co
     return add_genfscon(db, fs_name, path, ctx);
 }
 
+#else
+
+bool ksu_type(struct policydb *db, const char *name, const char *attr) { return true; }
+bool ksu_attribute(struct policydb *db, const char *name) { return true; }
+bool ksu_permissive(struct policydb *db, const char *type) { return true; }
+bool ksu_enforce(struct policydb *db, const char *type) { return true; }
+bool ksu_typeattribute(struct policydb *db, const char *type, const char *attr) { return true; }
+bool ksu_exists(struct policydb *db, const char *type) { return true; }
+bool ksu_allow(struct policydb *db, const char *src, const char *tgt, const char *cls, const char *perm) { return true; }
+bool ksu_deny(struct policydb *db, const char *src, const char *tgt, const char *cls, const char *perm) { return true; }
+bool ksu_auditallow(struct policydb *db, const char *src, const char *tgt, const char *cls, const char *perm) { return true; }
+bool ksu_dontaudit(struct policydb *db, const char *src, const char *tgt, const char *cls, const char *perm) { return true; }
+bool ksu_allowxperm(struct policydb *db, const char *src, const char *tgt, const char *cls, const char *range) { return true; }
+bool ksu_auditallowxperm(struct policydb *db, const char *src, const char *tgt, const char *cls, const char *range) { return true; }
+bool ksu_dontauditxperm(struct policydb *db, const char *src, const char *tgt, const char *cls, const char *range) { return true; }
+bool ksu_type_transition(struct policydb *db, const char *src, const char *tgt, const char *cls, const char *def, const char *obj) { return true; }
+bool ksu_type_change(struct policydb *db, const char *src, const char *tgt, const char *cls, const char *def) { return true; }
+bool ksu_type_member(struct policydb *db, const char *src, const char *tgt, const char *cls, const char *def) { return true; }
+bool ksu_genfscon(struct policydb *db, const char *fs_name, const char *path, const char *ctx) { return true; }
+
+#endif
 // ======== sepolicy ========
 
 void ksu_destroy_sepolicy(struct selinux_policy *pol)
